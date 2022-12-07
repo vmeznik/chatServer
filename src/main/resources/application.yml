@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:1234/ChatClient
+    username: postgres
+    password: naruto
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+      dialect : org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8080
