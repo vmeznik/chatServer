@@ -1,9 +1,11 @@
 package chatServer.controller;
 
 import chatServer.model.*;
-import chatServer.repository.UsersRepository;
+import chatServer.repository.IUsersRepository;
+import chatServer.service.MessageService;
 import chatServer.socketServer.ClientHandler;
 import chatServer.utility.Logger;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,40 +13,39 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class RestApiController {
-    private final UsersRepository usersRepository;
-
-    public RestApiController(UsersRepository usersRepository) {
-        this.usersRepository = usersRepository;
-    }
+    private final IUsersRepository usersRepository;
+    private final MessageService messageService;
 
     @PostMapping("chatClient/register")
-    public RequestConfirmation registerUser(@RequestBody Register register) {
-        return registerUserConfirmation(register);
+    public RequestConfirmation registerUser(@RequestBody UserInfo userInfo) {
+        return registerUserConfirmation(userInfo);
     }
 
     @PostMapping("chatClient/login")
-    public RequestConfirmation loginUser(@RequestBody Login login) {
-        return loginUserConfirmation(login);
+    public RequestConfirmation loginUser(@RequestBody UserInfo userInfo) {
+        return loginUserConfirmation(userInfo);
     }
 
     @PostMapping("chatClient/forgotPassword")
-    public String forgotPasswordRequest(@RequestBody ForgotPassword forgotPassword) {
-        return forgotPasswordFromRepository(forgotPassword);
+    public String forgotPasswordRequest(@RequestBody UserInfo userInfo) {
+        return forgotPasswordFromRepository(userInfo);
     }
 
 
-    private String forgotPasswordFromRepository(ForgotPassword forgotPassword) {
-        List<Member> list = usersRepository.forgotPasswordFromDb(forgotPassword.getUserName(), forgotPassword.getEmail());
+    private String forgotPasswordFromRepository(UserInfo userInfo) {
+        List<Member> list = usersRepository.forgotPasswordFromDb(userInfo.getUserName(), userInfo.getEmail());
         if (!list.isEmpty()) {
             return list.get(0).getPassword();
         }
         return "User does not exists , check username and email";
     }
 
-    private RequestConfirmation loginUserConfirmation(Login login) {
-        if (!usersRepository.loginUser(login.getUserName(), login.getPassword()).isEmpty()) {
-            if (!checkIfUserIsAlreadyLogged(login.getUserName())) {
+    private RequestConfirmation loginUserConfirmation(UserInfo userInfo) {
+        System.out.println(userInfo.toString());
+        if (!usersRepository.loginUser(userInfo.getUserName(), userInfo.getPassword()).isEmpty()) {
+            if (!checkIfUserIsAlreadyLogged(userInfo.getUserName())) {
                 return new RequestConfirmation(true, null);
             }
             return new RequestConfirmation(false, "User is already logged");
@@ -52,16 +53,16 @@ public class RestApiController {
         return new RequestConfirmation(false, "Wrong username or password");
     }
 
-    private RequestConfirmation registerUserConfirmation(Register register) {
+    private RequestConfirmation registerUserConfirmation(UserInfo userInfo) {
         try {
-            if (!usersRepository.nameExists(register.getUserName()).isEmpty()) {
+            if (!usersRepository.nameExists(userInfo.getUserName()).isEmpty()) {
                 return new RequestConfirmation(false, "Username already exists");
             }
-            if (!usersRepository.emailExists(register.getEmailAddress()).isEmpty()) {
+            if (!usersRepository.emailExists(userInfo.getEmail()).isEmpty()) {
                 return new RequestConfirmation(false, "Email already exists");
             }
-            Logger.getInstance().log(register.getUserName()+" was registered");
-            usersRepository.addUser(register.getUserName(), register.getPassword(), register.getEmailAddress());
+            Logger.getInstance().log(userInfo.getUserName() + " was registered");
+            usersRepository.addUser(userInfo.getUserName(), userInfo.getPassword(), userInfo.getEmail());
         } catch (Exception e) {
             e.printStackTrace();
             return new RequestConfirmation(false, "User was not registered");

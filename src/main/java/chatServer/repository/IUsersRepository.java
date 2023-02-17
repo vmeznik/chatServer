@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
-public interface UsersRepository extends JpaRepository<Member, Integer> {
+public interface IUsersRepository extends JpaRepository<Member, Integer> {
 
     @Transactional
     @Modifying
@@ -20,16 +20,16 @@ public interface UsersRepository extends JpaRepository<Member, Integer> {
     void addUser(@Param("nameReq") String nameReq, @Param("passwordReq") String passwordReq,
                  @Param("emailReq") String emailReq);
 
-    @Query(value = "SELECT * FROM users  WHERE  name like %?1%", nativeQuery = true)
+    @Query(value = "SELECT * FROM users  WHERE  name = ?1", nativeQuery = true)
     List<Member> nameExists(String nameReq);
 
-    @Query(value = "SELECT * FROM users  WHERE  email like %?1%", nativeQuery = true)
+    @Query(value = "SELECT * FROM users  WHERE  email = ?1", nativeQuery = true)
     List<Member> emailExists(String emailReq);
 
-    @Query(value = "SELECT * FROM users  WHERE  name like %?1% AND password like %?2%", nativeQuery = true)
+    @Query(value = "SELECT * FROM users  WHERE  name = ?1 AND password = ?2", nativeQuery = true)
     List<Member> loginUser(String nameReq, String passwordReq);
 
-    @Query(value = "SELECT * FROM users  WHERE  name like %?1% AND email like %?2%", nativeQuery = true)
+    @Query(value = "SELECT * FROM users  WHERE  name = ?1 AND email = ?2", nativeQuery = true)
     List<Member> forgotPasswordFromDb(String nameReq, String emailReq);
 
 

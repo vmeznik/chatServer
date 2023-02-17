@@ -1,37 +1,29 @@
 package chatServer.model;
 
+import lombok.*;
+
+import javax.persistence.*;
+
+@Entity
+@Setter
+@Getter
+@Table(name = "messages", schema = "public")
+@NoArgsConstructor
 public class Message {
+    @Column(name = "receiver")
     private String receiver;
+    @Column(name = "sender")
     private String sender;
+    @Column(name = "text")
     private String text;
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-    public Message(String receiver, String sender, String text) {
+    public Message(String sender, String receiver, String text) {
         this.receiver = receiver;
         this.sender = sender;
-        this.text = text;
-    }
-
-    public String getReceiver() {
-        return receiver;
-    }
-
-    public String getSender() {
-        return sender;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
-    }
-
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
-
-    public void setText(String text) {
         this.text = text;
     }
 
@@ -39,5 +31,4 @@ public class Message {
     public String toString() {
         return sender + " : " + text;
     }
-
 }

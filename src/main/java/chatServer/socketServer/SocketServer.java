@@ -28,7 +28,8 @@ public class SocketServer {
                 System.out.println("Waiting for client ..");
                 //server set up
                 socket = welcomeSocket.accept();
-                ClientHandler clientHandler = new ClientHandler(socket);
+                ClientHandler clientHandler = new ClientHandler();
+                clientHandler.init(socket);
                 Thread thread = new Thread(clientHandler);
                 thread.start();
             }
